@@ -36,3 +36,29 @@
 ![10](https://github.com/kimkimsun/StudyNetworkGame/assets/116052108/f6e46023-663e-4776-8897-5162e9bb6dd8)
 #### 해당 컴포넌트들도 추가해줍니다.
 #### 저는 애니메이터를 사용하지 않을 것이지만 혹여나 사용하게 된다면 이것또한 사용해야 됩니다.
+#### 함수들에 대해 대충이나마 알아봤습니다. 그럼 이제 로비, 방 생성, 플레이어끼리 만나게 해보겠습니다.
+
+#### 준비물은 3개의 씬이 필요합니다. 시작,로비,방
+#### 먼저 시작부터 보겠습니다.
+![1](https://github.com/kimkimsun/StudyNetworkGame/assets/116052108/288ad8bc-5438-44c8-8d38-e79e7772e4c4)
+#### 닉네임을 적을 수 있고 버튼을 누르면 Lobby로 이동합니다.
+![2](https://github.com/kimkimsun/StudyNetworkGame/assets/116052108/29793b89-02ad-498c-9bdd-fd29fa3818b7)
+#### 해당 스크립트는 매우 간단하니 이해하는데 어렵지 않을 것입니다.
+
+![4](https://github.com/kimkimsun/StudyNetworkGame/assets/116052108/bf5381e3-3f7d-4f52-9b19-f27cfaa3971b)
+#### 다음은 Lobby 스크립트입니다.
+![3](https://github.com/kimkimsun/StudyNetworkGame/assets/116052108/96f72010-bcd3-4aa6-b97e-692324c3e9c3)
+#### 위에 있던 사진들과 다른 부분에만 주석을 달겠습니다.
+![5](https://github.com/kimkimsun/StudyNetworkGame/assets/116052108/7a03ad44-8618-4738-8101-8de4abebcf0c)
+#### 현재는 방이 1개만 존재하고 2명이서 플레이한다는 전제로 만든 코드이지만 여러개를 사용할 경우 for문을 사용하면 쉽게 구현 가능합니다.
+
+#### 다음은 메인 화면입니다.
+![6](https://github.com/kimkimsun/StudyNetworkGame/assets/116052108/1ab04bda-1886-454f-84b3-bd13904539e0)
+#### 우리가 알던 instantiate가 아닌 포톤 클래스를 사용해야 동기화가 가능합니다.
+#### 처음에 있는 "Player"라는 문자열은 Editor안에 있는 Resources 파일 안에서 문자열로 찾습니다.
+#### !주의 Player라는 오브젝트를 Prefab한 뒤 프로젝트에선 삭제하고 Resources폴더 안에 넣으며, 그 객체는 Photon View와 Photon transform 스크립트가 존재해야 합니다.
+
+#### 이렇게 하면 모든 준비는 마쳤습니다. 기본만을 다뤘지만 
+#### 포톤을 이용하여 원하는 멀티플레이 게임을 만드는데 있어 중요한 함수는 모두 사용하고 설명하였으니 쉽게 구현이 가능 할 것입니다.
+
+### 끝까지 읽어주셔서 감사합니다.
