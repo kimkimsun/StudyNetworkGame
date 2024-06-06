@@ -3,33 +3,59 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
+using UnityEngine.UI;
+using TMPro;
+using Unity.VisualScripting;
 public class PhotonManager : MonoBehaviourPunCallbacks
 {
+    public PhotonView pv;
+    List<RoomInfo> myList = new List<RoomInfo>();
+    public static PhotonManager Instance;
+    public TextMeshProUGUI roomText;
+    public TextMeshProUGUI stateText;
     // 버전 입력
     private readonly string version = "1.0f";
     // 사용자 아이디 입력
-    private string userId = "StudyPT";
-
+    public static string userId;
     void Awake()
     {
+        if(Instance == null)
+            Instance = this;
+        else if (Instance != this)
+            Destroy(gameObject);
+        DontDestroyOnLoad(gameObject);
         PhotonNetwork.AutomaticallySyncScene= true;
         PhotonNetwork.GameVersion = version;
-        PhotonNetwork.NickName = userId;
-        Debug.Log(PhotonNetwork.SendRate);
         PhotonNetwork.ConnectUsingSettings();
+        pv = GetComponent<PhotonView>();
+    }
+    private void Start()
+    {
+        PhotonNetwork.NickName = userId; // 시작에서 만들었던 닉네임을 적용한다.
+    }
+    private void Update()
+    {
+        if (stateText!=null)
+            stateText.text = PhotonNetwork.NetworkClientState.ToString(); // 현재 로비에 잘 접속했는지 접속 중인지 여부를 판단하기 위한 로그이다.
     }
     public override void OnConnectedToMaster()
     {
-        Debug.Log("서버에 접속완료");
-        Debug.Log($"PhotonNetwork.inLobby = { PhotonNetwork.InLobby}");
         PhotonNetwork.JoinLobby();
     }
-
-    // 로비에 접속 후 호출되는 콜백 함수
-    public override void OnJoinedLobby()
+    public void RandomMatch()
     {
-        Debug.Log($"PhotonNetwork.inLobby = {PhotonNetwork.InLobby}");
-        PhotonNetwork.JoinRandomRoom(); // 랜덤 매칭
+        PhotonNetwork.JoinRandomRoom();
+    }
+    // 로비에 접속 후 호출되는 콜백 함수
+    public void CreateRoom()
+    {
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = 20;    // 해당 무료버전은 최대 플레이어를 20명만 받을 수 있음
+        roomOptions.IsOpen = true;      // 룸의 오픈 여부
+        roomOptions.IsVisible = true;    // 로비에서 룸 목록에 노출 시킬지 여부
+
+        // 룸 생성
+        PhotonNetwork.CreateRoom("new Room", roomOptions);
     }
     public override void OnJoinRandomFailed(short returnCode, string message)
     {
@@ -38,31 +64,44 @@ public class PhotonManager : MonoBehaviourPunCallbacks
         RoomOptions roomOptions = new RoomOptions();
         roomOptions.MaxPlayers = 20;    // 해당 무료버전은 최대 플레이어를 20명만 받을 수 있음
         roomOptions.IsOpen = true;      // 룸의 오픈 여부
-        roomOptions.IsVisible= true;    // 로비에서 룸 목록에 노출 시킬지 여부
+        roomOptions.IsVisible = true;    // 로비에서 룸 목록에 노출 시킬지 여부
 
         // 룸 생성
         PhotonNetwork.CreateRoom("new Room", roomOptions);
     }
-
-    // 룸 생성이 완료된 후 호출되는 콜백 함수
-    public override void OnCreatedRoom()
-    {
-        Debug.Log("Created Room");
-        Debug.Log($"Room Name = {PhotonNetwork.CurrentRoom.Name}");
-    }
-    // 룸에 입장한 후 호출되는 콜백 함수
-
     public override void OnJoinedRoom()
     {
-        // 입장이 잘 됐는지 확인하는 로그
-        Debug.Log($"PhotonNetword.InRoom = {PhotonNetwork.InRoom}");
-        // 플레이어 수 확인
+        PhotonNetwork.LoadLevel("Main");
+        // Photon Network를 이용하여 메인씬으로 이동하는 것입니다.
         Debug.Log($"Player Count = {PhotonNetwork.CurrentRoom.PlayerCount}");
+    }
+    void MyListRenewal()
+    {
+        // 방 이름 버튼을 지정해주는 것입니다.
+        if(myList.Count > 0)
+            roomText.text = myList[0].Name;
+    }
+    public void MyListClick()
+    {
+        // 버튼을 눌렀을 때 그 게임의 방으로 이동하는 것입니다. string으로 접근합니다.
+        PhotonNetwork.JoinRoom(myList[0].Name);
+    }
 
-        foreach(var player in PhotonNetwork.CurrentRoom.Players)
+    public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        int roomCount = roomList.Count;
+        for (int i = 0; i < roomCount; i++)
         {
-            Debug.Log($"{player.Value.NickName}{player.Value.ActorNumber}");
+            if (!roomList[i].RemovedFromList)
+            {
+                if (!myList.Contains(roomList[i])) 
+                    myList.Add(roomList[i]);
+                else 
+                    myList[myList.IndexOf(roomList[i])] = roomList[i];
+            }
+            else if (myList.IndexOf(roomList[i]) != -1) 
+                myList.RemoveAt(myList.IndexOf(roomList[i]));
         }
-        // 플레이어들의 정보를 가져오는 foreach문
+        MyListRenewal();
     }
 }
